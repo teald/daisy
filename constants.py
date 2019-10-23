@@ -9,7 +9,7 @@ w_A = 0.75
 b_A = 0.25
 
 # Stellar properties
-S = 
+S = 1.0
 
 # Other constants
 sigma = 5.6704e-5

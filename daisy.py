@@ -86,4 +86,5 @@ class Daisy(object):
         '''
         Determines the temperature and changes it given the current values.
         '''
-        self.T = c.sigma *
+        self.Teff = np.power(c.S * c.L * (1. - self.A) / c.sigma, 1/4)
+        return self.Teff
