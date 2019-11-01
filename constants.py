@@ -7,6 +7,7 @@ should be better handled...
 surf_A = 0.5
 w_A = 0.75
 b_A = 0.25
+q = 20
 
 # Stellar properties
 S = 1.0
