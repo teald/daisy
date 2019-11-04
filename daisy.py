@@ -92,7 +92,7 @@ class Daisy(object):
         '''
         self.Teff = np.power(c.q * 1. - self.A, 1/4)
         # Calculate the individual daisy temperatures as a function of albedo
-        T_i = lambda A: np.power(q * (self.A - A) + self.Teff**4, 1/4)
+        T_i = lambda A: np.power(c.q * (self.A - A) + self.Teff**4, 1/4)
 
         self.T= np.array([T_i(c.w_A), T_i(c.b_A)])
         return self.T
@@ -159,7 +159,7 @@ class Daisy(object):
 
             # Print out the current step
             print(f'a_w = {self.a_w:1.3e} || a_b = {self.a_b:1.3e} || '
-                  f'Tsurf = {self.T}')
+                  f'Tsurf = {self.T} || i = {i}')
 
             if autostop:
                 # Check for convergence
