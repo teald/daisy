@@ -91,7 +91,10 @@ class Daisy(object):
         Determines the temperature and changes it given the current values.
         '''
         self.Teff = np.power(c.q * 1. - self.A, 1/4)
-        self.T = np.power(c.q * (1. - self.A) + (self.Teff**4), 1/4)
+        # Calculate the individual daisy temperatures as a function of albedo
+        T_i = lambda A: np.power(q * (self.A - A) + self.Teff**4, 1/4)
+
+        self.T= np.array([T_i(c.w_A), T_i(c.b_A)])
         return self.T
 
 
@@ -103,7 +106,7 @@ class Daisy(object):
         return da
 
 
-    def rk4Solve(self, t0, tf, h):
+    def rk4Solve(self, t0, tf, h, autostop=True):
         '''
         Implements the 4th-order Runga-Kutta method for solving differential
         equations.
@@ -117,6 +120,8 @@ class Daisy(object):
             + args (iterable): Arguments as an iterable to be passed to func
                 after r0 and t. Default [], which implies no additional
                 arguments.
+            + autostop (bool, default True): if True, will stop when the change
+                each iteration is less than 1e-14.
 
         Returns:
             + ts (array): the array of times integrated over
@@ -137,6 +142,8 @@ class Daisy(object):
               f'Tsurf = {self.T}')
 
         # 4th-order Runga Kutta integration
+        dr = 1e6
+        cur_r = r0
         for i, t in enumerate(ts[:-1]):
             k1 = h * func(rs[i], t)
             k2 = h * func(rs[i] + 0.5 * k1, t + 0.5*h)
@@ -153,5 +160,13 @@ class Daisy(object):
             # Print out the current step
             print(f'a_w = {self.a_w:1.3e} || a_b = {self.a_b:1.3e} || '
                   f'Tsurf = {self.T}')
+
+            if autostop:
+                # Check for convergence
+                dr = np.absolute(np.linalg.norm(rs[i+1]-cur_r))
+                if dr < 1e-14:
+                    print("Converged!")
+                    break
+                cur_r = rs[i+1]
 
         return ts, rs
