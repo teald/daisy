@@ -16,7 +16,7 @@ class Daisy(object):
     This contains the Daisy class (edit this later!!!)
     '''
 
-    def __init__(self, P, gamma, a_w, a_b):
+    def __init__(self, P, gamma, a_w, a_b, L, verbose=False):
         '''
         Initializes the Daisy class. All parameters except gamma (a constant)
         are the initial conditions that will change as the daisies are
@@ -27,12 +27,19 @@ class Daisy(object):
             + gamma (float): the death rate of the daisies in daisies/day.
             + a_w (float): area of P covered by white daisies.
             + a_b (float): area of P covered by black daisies
+            + L (float): the fraction of solar flux incident on the surface
+                (where S = 9.17e5 erg/cm^2/s is the solar flux at Earth's
+                surface.
+            + verbose (bool): if True, prints out A LOT. If False (default) it
+                will not do that.
         '''
         # Make all inputs other than self attributes
         self.P = P
         self.gamma = gamma
         self.a_w = a_w
         self.a_b = a_b
+        self.L = L
+        self.verbose = verbose
 
         # Initialize the other parameters
         self.update()
@@ -44,30 +51,14 @@ class Daisy(object):
         self.temperature()
         self.growthRate()
 
-    def growthRate(self, T = None, test = False):
+    def growthRate(self):
         '''
         Determines the growth rate (beta). If T != None (default), uses the
         given T. It will always return beta, but will only assign it as an
         attribute if test = False (default).
-
-        Args:
-            + T (float or None): If None (default), uses self.T. If a float,
-                uses that value. Assumes the temperature is in Kelvin.
-            + test (bool): If False (Default), will assign the calculated beta
-                to self.beta. Otherwise, it will *only* return beta and not also
-                assign it.
-
-        Returns:
-            + beta (float): The growth rate of the daisies.
         '''
-        if T == None:
-            beta = 1 - 3.265e-3 * (295.65 - self.T)**2.
-
-        else:
-            beta = 1 - 3.265e-3 * (295.65 - T)**2.
-
-        if not test: self.beta = beta
-        return beta
+        self.beta = 1 - 3.265e-3 * (295.65 - self.T)**2.
+        return self.beta
 
 
     def emptySpace(self):
@@ -90,7 +81,7 @@ class Daisy(object):
         '''
         Determines the temperature and changes it given the current values.
         '''
-        self.Teff = np.power(c.q * 1. - self.A, 1/4)
+        self.Teff = np.power(c.S * self.L * (1. - self.A) / c.sigma, 1/4)
         # Calculate the individual daisy temperatures as a function of albedo
         T_i = lambda A: np.power(c.q * (self.A - A) + self.Teff**4, 1/4)
 
@@ -137,13 +128,16 @@ class Daisy(object):
         func = lambda r, t: self.dDaisies(r, t, self.x, self.beta, self.gamma)
 
         # Useful output
-        print(f'Beginning daisy integration...')
-        print(f'a_w = {self.a_w:1.3e} || a_b = {self.a_b:1.3e} || '
-              f'Tsurf = {self.T}')
+        if self.verbose:
+            print(f'Beginning daisy integration...')
+            print(f'a_w = {self.a_w:1.3e} || a_b = {self.a_b:1.3e} || '
+                  f'Tsurf = {self.Teff}')
+
+        # use cur_r if autostop is enabled
+        if autostop: cur_r = r0
 
         # 4th-order Runga Kutta integration
         dr = 1e6
-        cur_r = r0
         for i, t in enumerate(ts[:-1]):
             k1 = h * func(rs[i], t)
             k2 = h * func(rs[i] + 0.5 * k1, t + 0.5*h)
@@ -151,21 +145,26 @@ class Daisy(object):
             k4 = h * func(rs[i] + k3, t + h)
             rs[i+1] = rs[i] + (1/6) * (k1 + 2*k2 + 2*k3 + k4)
 
-            # Update the attributes
+            # Update the daisy pop attributes
             self.a_w, self.a_b = rs[i+1]
 
             # Recalculate the new physical parameters for the daisies.
             self.update()
 
             # Print out the current step
-            print(f'a_w = {self.a_w:1.3e} || a_b = {self.a_b:1.3e} || '
-                  f'Tsurf = {self.T} || i = {i}')
+            area_w = self.a_w * self.P
+            area_b = self.a_b * self.P
+            #print(f'a_w = {self.a_w:1.3e} || a_b = {self.a_b:1.3e} || '
+            #        f'Tsurf = {self.Teff:1.3e} || i = {i}')
+            if self.verbose:
+                print(f'area white: {area_w:.1e} || area black: {area_b:.1e} '
+                      f'|| Tsurf = {self.Teff}')
 
             if autostop:
                 # Check for convergence
                 dr = np.absolute(np.linalg.norm(rs[i+1]-cur_r))
                 if dr < 1e-14:
-                    print("Converged!")
+                    if self.verbose: print("Converged!")
                     break
                 cur_r = rs[i+1]
 
