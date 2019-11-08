@@ -56,10 +56,10 @@ class Daisy(object):
         # Initialize the other parameters
         self.update()
 
-    def update(self):
+    def update(self, a_vec = None):
         '''Updates daisy parameters in the correct order'''
-        self.emptySpace()
-        self.albedo()
+        self.emptySpace(a_vec)
+        self.albedo(a_vec)
         self.temperature()
         self.growthRate()
 
@@ -73,20 +73,26 @@ class Daisy(object):
         return self.beta
 
 
-    def emptySpace(self):
+    def emptySpace(self, a_vec = None):
         '''
         Determines "x", the remaining area without daisies.
         '''
-        self.x = self.P - np.sum(self.a_vec[:-1])
-        self.a_vec[-1] = self.x
+        if type(a_vec) == type(None):
+            self.x = self.P - np.sum(self.a_vec[:-1])
+            self.a_vec[-1] = self.x
+        else:
+            self.x = self.P - np.sum(a_vec[:-1])
+            self.a_vec[-1] - self.x
         return self.x
 
 
-    def albedo(self):
+    def albedo(self, a_vec = None):
         '''
         Determines the albedo of this patch.
         '''
-        self.A = self.a_vec@self.A_vec
+        if type(a_vec) == type(None):
+            self.A = self.a_vec@self.A_vec
+        else: self.A = a_vec@self.A_vec
         return self.A
 
 
@@ -113,7 +119,6 @@ class Daisy(object):
         da[-1] = 0.
         return da
 
-
     def rk4Solve(self, t0, tf, h, autostop=True):
         '''
         Implements the 4th-order Runga-Kutta method for solving differential
@@ -129,7 +134,7 @@ class Daisy(object):
                 after r0 and t. Default [], which implies no additional
                 arguments.
             + autostop (bool, default True): if True, will stop when the change
-                each iteration is less than 1e-14.
+                each iteration is less than 1e-6.
 
         Returns:
             + ts (array): the array of times integrated over
@@ -159,8 +164,11 @@ class Daisy(object):
         dr = 1e6
         for i, t in enumerate(ts[:-1]):
             k1 = h * func(rs[i], t)
+            self.update(rs[i] + 0.5 * k1)
             k2 = h * func(rs[i] + 0.5 * k1, t + 0.5*h)
+            self.update(rs[i] + 0.5 * k2)
             k3 = h * func(rs[i] + 0.5 * k2, t + 0.5*h)
+            self.update(rs[i] + 0.5 * k3)
             k4 = h * func(rs[i] + k3, t + h)
             rs[i+1] = rs[i] + (1/6) * (k1 + 2*k2 + 2*k3 + k4)
 
