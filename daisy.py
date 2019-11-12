@@ -17,7 +17,7 @@ class Daisy(object):
     '''
 
     def __init__(self, P, gamma, a_vec, A_vec, L, verbose=False, A_g = 0.5,
-                 S = c.S):
+                 S = c.S, q = c.q):
         '''
         Initializes the Daisy class. All parameters except gamma (a constant)
         are the initial conditions that will change as the daisies are
@@ -38,7 +38,9 @@ class Daisy(object):
             + A_g (float): albedo of the ground for fraction of land not
                 covered by daisies. Default 0.5
             + S (float): The solar surface flux in erg/cm^2/s (default c.S,
-                from the constants file.
+                from the constants file).
+            + q (float or arr): The absorption efficiency of the daisies and
+                ground (default c.q).
         '''
         # Make all inputs other than self attributes
         self.P = P
@@ -48,6 +50,7 @@ class Daisy(object):
         self.L = L
         self.verbose = verbose
         self.S = S
+        self.q = q
 
         # Create the full arrays, including the ground and its albedo
         self.a_vec = np.array([ai for ai in (a_vec.tolist() +
