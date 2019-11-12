@@ -16,7 +16,8 @@ class Daisy(object):
     This contains the Daisy class (edit this later!!!)
     '''
 
-    def __init__(self, P, gamma, a_vec, A_vec, L, verbose=False, A_g = 0.5):
+    def __init__(self, P, gamma, a_vec, A_vec, L, verbose=False, A_g = 0.5,
+                 S = c.S):
         '''
         Initializes the Daisy class. All parameters except gamma (a constant)
         are the initial conditions that will change as the daisies are
@@ -36,6 +37,8 @@ class Daisy(object):
                 will not do that.
             + A_g (float): albedo of the ground for fraction of land not
                 covered by daisies. Default 0.5
+            + S (float): The solar surface flux in erg/cm^2/s (default c.S,
+                from the constants file.
         '''
         # Make all inputs other than self attributes
         self.P = P
@@ -44,6 +47,7 @@ class Daisy(object):
         self.in_A_vec = A_vec  # The input vector, to be modified
         self.L = L
         self.verbose = verbose
+        self.S = S
 
         # Create the full arrays, including the ground and its albedo
         self.a_vec = np.array([ai for ai in (a_vec.tolist() +
@@ -100,7 +104,7 @@ class Daisy(object):
         '''
         Determines the temperature and changes it given the current values.
         '''
-        self.Teff = np.power(c.S * self.L * (1. - self.A) / c.sigma, 1/4)
+        self.Teff = np.power(self.S * self.L * (1. - self.A) / c.sigma, 1/4)
         # Calculate the individual daisy temperatures as a function of albedo
         T_i = lambda A: np.power(c.q * (self.A - A) + self.Teff**4, 1/4)
 
