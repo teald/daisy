@@ -5,6 +5,7 @@ It should only contain the self-contained Daisy model, that ignores the other
 Daisies in the world connected via other metrics.
 '''
 # Imports
+import time
 import numpy as np
 import constants as c
 import pdb
@@ -16,8 +17,8 @@ class Daisy(object):
     This contains the Daisy class (edit this later!!!)
     '''
 
-    def __init__(self, P, gamma, a_vec, A_vec, L, verbose=False, A_g = 0.5,
-                 S = c.S, q = c.q):
+    def __init__(self, P, gamma, a_vec, A_vec, L=1.0, T_vec=None,
+            verbose=False, A_g = 0.5, S = c.S, q = c.q):
         '''
         Initializes the Daisy class. All parameters except gamma (a constant)
         are the initial conditions that will change as the daisies are
@@ -33,6 +34,9 @@ class Daisy(object):
             + L (float): the fraction of solar flux incident on the surface
                 (where S = 9.17e5 erg/cm^2/s is the solar flux at Earth's
                 surface.
+            + T_vec (array or None): the numpy 1D array of optimal temperatures
+                for each daise species. If None (default) uses the default
+                optimal daisy temperature from Watson & Lovelock 1983.
             + verbose (bool): if True, prints out A LOT. If False (default) it
                 will not do that.
             + A_g (float): albedo of the ground for fraction of land not
@@ -47,6 +51,7 @@ class Daisy(object):
         self.gamma = gamma
         self.in_a_vec = a_vec  # The input vector, to be modified
         self.in_A_vec = A_vec  # The input vector, to be modified
+        self.T_vec = T_vec     # The input vector, to be modified
         self.L = L
         self.verbose = verbose
         self.S = S
@@ -60,15 +65,30 @@ class Daisy(object):
         # Initialize other vectors
         self.T = np.zeros_like(self.a_vec)
 
+        # Check for input temperatures
+        if type(T_vec) == type(None):
+            self.T_vec = 295.65
+        else:
+            # Adding in the ground
+            self.T_vec = np.asarray(self.T_vec.tolist() + [295.65])
+
         # Initialize the other parameters
         self.update()
 
     def update(self, a_vec = None):
         '''Updates daisy parameters in the correct order'''
+        self.daisy_check()
         self.emptySpace(a_vec)
         self.albedo(a_vec)
         self.temperature()
         self.growthRate()
+
+
+    def daisy_check(self):
+        '''
+        Checks to make sure no daisy populations are negative.
+        '''
+        self.a_vec = np.where(self.a_vec  < 0, 0, self.a_vec)
 
     def growthRate(self):
         '''
@@ -76,7 +96,7 @@ class Daisy(object):
         given T. It will always return beta, but will only assign it as an
         attribute if test = False (default).
         '''
-        self.beta = 1 - 3.265e-3 * (295.65 - self.T)**2.
+        self.beta = 1 - 3.265e-3 * (self.T_vec - self.T)**2.
         return self.beta
 
 
@@ -102,17 +122,34 @@ class Daisy(object):
         else: self.A = a_vec@self.A_vec
         return self.A
 
+    def T_i(self, A=None):
+        '''
+        Calculates individual daisy temperatures as a function of albedo.
+        '''
+        if type(A) == type(None):
+            return np.power(c.q * (self.A - self.A_vec) + self.Teff**4, 1/4)
+        else:
+            return np.power(c.q * (self.A - A) + self.Teff**4, 1/4)
+
 
     def temperature(self):
         '''
         Determines the temperature and changes it given the current values.
         '''
         self.Teff = np.power(self.S * self.L * (1. - self.A) / c.sigma, 1/4)
-        # Calculate the individual daisy temperatures as a function of albedo
-        T_i = lambda A: np.power(c.q * (self.A - A) + self.Teff**4, 1/4)
+
+        #print('\n\n')
+        #for key, item in self.__dict__.items():
+        #    print(f'{key} = {item}')
+
+        if np.isnan(self.A):
+            print('\n\n')
+            for key, item in self.__dict__.items():
+                print(f'{key} = {item}')
+            barf
 
         # Temperature array with Teff standing in for the ground question
-        self.T[:-1] = T_i(self.A_vec[:-1])
+        self.T[:-1] = self.T_i(self.A_vec[:-1])
         self.T[-1] = self.Teff
         return self.T
 
@@ -175,7 +212,7 @@ class Daisy(object):
             k2 = h * func(rs[i] + 0.5 * k1, t + 0.5*h)
             self.update(rs[i] + 0.5 * k2)
             k3 = h * func(rs[i] + 0.5 * k2, t + 0.5*h)
-            self.update(rs[i] + 0.5 * k3)
+            self.update(rs[i] + k3)
             k4 = h * func(rs[i] + k3, t + h)
             rs[i+1] = rs[i] + (1/6) * (k1 + 2*k2 + 2*k3 + k4)
 
@@ -195,7 +232,7 @@ class Daisy(object):
             if autostop:
                 # Check for convergence
                 dr = np.absolute(np.linalg.norm(rs[i+1]-cur_r))
-                if dr < 1e-5:
+                if dr < 1e-6:
                     if self.verbose: print("Converged!")
                     break
                 cur_r = rs[i+1]
