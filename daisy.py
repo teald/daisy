@@ -86,9 +86,11 @@ class Daisy(object):
 
     def daisy_check(self):
         '''
-        Checks to make sure no daisy populations are negative.
+        Checks to make sure no daisy populations are negative, and that all
+        daisy populations are less than 1.
         '''
-        self.a_vec = np.where(self.a_vec  < 0, 0, self.a_vec)
+        self.a_vec = np.where(self.a_vec  < 1e-16, 1e-15, self.a_vec)
+        #self.a_vec /= np.linalg.norm(self.a_vec)
 
     def growthRate(self):
         '''
@@ -163,14 +165,13 @@ class Daisy(object):
         da[-1] = 0.
         return da
 
-    def rk4Solve(self, t0, tf, h, autostop=True):
+    def rk4Solve(self, maxsteps, h, autostop=True, onestep=False):
         '''
         Implements the 4th-order Runga-Kutta method for solving differential
         equations.
 
         Args:
-            + t0 (float): start time for the integration
-            + tf (float): end time for the integration
+            + maxsteps (float): maximum number of steps to take
             + h (float): the step size (is this what it's formally called?)
             + func (function): The function that defines the differential
                 system.
@@ -179,19 +180,36 @@ class Daisy(object):
                 arguments.
             + autostop (bool, default True): if True, will stop when the change
                 each iteration is less than 1e-6.
+            + onestep (bool, default False): if True, will only step forward
+                once in the rk4 solver instead of waiting for time convergence.
+                This *overrides autostop*.
 
         Returns:
             + ts (array): the array of times integrated over
             + rs (array): array containing the integration itself over time.
         '''
+        args = [self.x, self.beta, self.gamma]
+        # Only perform one step if onestep
+        if onestep:
+            t = 0
+            r = self.a_vec
+            k1 = h * self.dDaisies(r, t, *args)
+            self.update(r + 0.5 * k1)
+            k2 = h * self.dDaisies(r + 0.5 * k1, t + 0.5*h, *args)
+            self.update(r + 0.5 * k2)
+            k3 = h * self.dDaisies(r + 0.5 * k2, t + 0.5*h, *args)
+            self.update(r + k3)
+            k4 = h * self.dDaisies(r + k3, t + h, *args)
+            r = r + (1/6) * (k1 + 2*k2 + 2*k3 + k4)
+            self.a_vec = r
+            self.update()
+            return r
+
         # Create the ts and rs
-        ts = np.arange(t0, tf + h, h)
+        ts = np.linspace(0, 1000., maxsteps)
         r0 = self.a_vec
         rs = np.zeros((len(ts), len(r0)))
-        rs[0] = r0
-
-        # Set up the function to use
-        func = lambda r, t: self.dDaisies(r, t, self.x, self.beta, self.gamma)
+        rs[0,:] = r0
 
         # Useful output
         areas = self.a_vec * self.P
@@ -204,16 +222,18 @@ class Daisy(object):
         # use cur_r if autostop is enabled
         if autostop: cur_r = r0
 
+
+
         # 4th-order Runga Kutta integration
         dr = 1e6
         for i, t in enumerate(ts[:-1]):
-            k1 = h * func(rs[i], t)
+            k1 = h * self.dDaisies(rs[i], t, *args)
             self.update(rs[i] + 0.5 * k1)
-            k2 = h * func(rs[i] + 0.5 * k1, t + 0.5*h)
+            k2 = h * self.dDaisies(rs[i] + 0.5 * k1, t + 0.5*h, *args)
             self.update(rs[i] + 0.5 * k2)
-            k3 = h * func(rs[i] + 0.5 * k2, t + 0.5*h)
+            k3 = h * self.dDaisies(rs[i] + 0.5 * k2, t + 0.5*h, *args)
             self.update(rs[i] + k3)
-            k4 = h * func(rs[i] + k3, t + h)
+            k4 = h * self.dDaisies(rs[i] + k3, t + h, *args)
             rs[i+1] = rs[i] + (1/6) * (k1 + 2*k2 + 2*k3 + k4)
 
             # Update the daisy pop attributes
@@ -236,5 +256,7 @@ class Daisy(object):
                     if self.verbose: print("Converged!")
                     break
                 cur_r = rs[i+1]
+
+            args = [self.x, self.beta, self.gamma]
 
         return ts, rs
