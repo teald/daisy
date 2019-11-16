@@ -7,25 +7,21 @@ Created on Fri Nov  8 14:43:15 2019
 """
 
 import numpy as np
-import constants as c
-import pdb
 from daisy import Daisy
 
 
 class Parcel(Daisy):
 
-    def _updatetemp(self, temp1, temp2, temp3, temp4):
+    def _updatetemp(self, temp1, temp2, temp3, temp4, eff1, eff2, eff3, eff4):
         '''Updates parcel parameters in the correct order'''
-        # some equation????
-        pass
+        temps = np.array([temp1, temp2, temp3, temp4])
+        effs = np.array([eff1, eff2, eff3, eff4])
+        dT = (temps - self.Teff) / effs
+        self.Teff = self.Teff - np.sum(dT)
+        return self.Teff
 
     def Lfrac(self, theta, long):
         '''Calculates luminosity fraction based on theta'''
         self.theta = theta
         self.long = long
         return np.cos(90-self.theta)
-    
-        
-        
-    
-        
