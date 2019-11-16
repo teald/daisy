@@ -8,16 +8,22 @@ Created on Fri Nov  8 14:43:15 2019
 
 import numpy as np
 from daisy import Daisy
+import matplotlib.pyplot as plt
 
 
 class Parcel(Daisy):
 
-    def _updatetemp(self, temp1, temp2, temp3, temp4, eff1, eff2, eff3, eff4):
+    def _updatetemp(self, temp1, temp2, temp3, temp4):
         '''Updates parcel parameters in the correct order'''
         temps = np.array([temp1, temp2, temp3, temp4])
-        effs = np.array([eff1, eff2, eff3, eff4])
-        dT = (temps - self.Teff) / effs
-        self.Teff = self.Teff - np.sum(dT)
+        dT = (temps - self.Teff)
+
+        def gaussian(x):
+            return np.exp(-np.power(x, 2.) / (2 * np.power(25, 2.)))
+
+        effs = 1 - gaussian(dT)
+
+        self.Teff = self.Teff - np.sum(dT*effs)
         return self.Teff
 
     def Lfrac(self, theta, long):
@@ -25,3 +31,23 @@ class Parcel(Daisy):
         self.theta = theta
         self.long = long
         return np.cos(90-self.theta)
+
+
+Teff = 300
+temps = np.array([257, 0.0, 328, 291])
+dT = (temps - Teff)
+
+
+def gaussian(x):
+    return np.exp(-np.power(x, 2.) / (2 * np.power(25, 2.)))
+
+
+testDt = np.arange(-100, 100, 1)
+
+plt.plot(testDt, 1-gaussian(testDt))
+plt.show()
+
+
+effs = 1 - gaussian(dT)
+
+Teff = Teff + np.sum(dT*effs)
