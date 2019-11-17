@@ -26,6 +26,7 @@ class Tube(Daisy, Parcel):
         Update Parcel parameters for grid.
         '''
         #do Parcel stuff
+        pass
 
 
 #if parcel is on top or bottom then just pass temp from edge as temp in parcel
