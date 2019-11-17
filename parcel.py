@@ -11,14 +11,16 @@ from daisy import Daisy
 import matplotlib.pyplot as plt
 
 
+# Parcel definition
 class Parcel(Daisy):
 
     def _updatetemp(self, temp1, temp2, temp3, temp4):
-        '''Updates parcel parameters in the correct order'''
+        '''Updates parcel parameters in the correct order.'''
         temps = np.array([temp1, temp2, temp3, temp4])
         dT = (temps - self.Teff)
 
         def gaussian(x):
+            '''Temperature efficiency relation.'''
             return np.exp(-np.power(x, 2.) / (2 * np.power(25, 2.)))
 
         effs = 1 - gaussian(dT)
@@ -27,7 +29,7 @@ class Parcel(Daisy):
         return self.Teff
 
     def Lfrac(self, theta, long):
-        '''Calculates luminosity fraction based on theta'''
+        '''Calculates luminosity fraction based on theta.'''
         self.theta = theta
         self.long = long
         return np.cos(90-self.theta)

@@ -5,7 +5,6 @@ It should only contain the self-contained Daisy model, that ignores the other
 Daisies in the world connected via other metrics.
 '''
 # Imports
-import time
 import numpy as np
 import constants as c
 import pdb
@@ -18,7 +17,7 @@ class Daisy(object):
     '''
 
     def __init__(self, P, gamma, a_vec, A_vec, L=1.0, T_vec=None,
-            verbose=False, A_g = 0.5, S = c.S, q = c.q):
+                 verbose=False, A_g=0.5, S=c.S, q=c.q):
         '''
         Initializes the Daisy class. All parameters except gamma (a constant)
         are the initial conditions that will change as the daisies are
@@ -66,7 +65,7 @@ class Daisy(object):
         self.T = np.zeros_like(self.a_vec)
 
         # Check for input temperatures
-        if type(T_vec) == type(None):
+        if T_vec is None:
             self.T_vec = 295.65
         else:
             # Adding in the ground
@@ -75,7 +74,7 @@ class Daisy(object):
         # Initialize the other parameters
         self.update()
 
-    def update(self, a_vec = None):
+    def update(self, a_vec=None):
         '''Updates daisy parameters in the correct order'''
         self.daisy_check()
         self.emptySpace(a_vec)
@@ -83,13 +82,12 @@ class Daisy(object):
         self.temperature()
         self.growthRate()
 
-
     def daisy_check(self):
         '''
         Checks to make sure no daisy populations are negative, and that all
         daisy populations are less than 1.
         '''
-        self.a_vec = np.where(self.a_vec  < 1e-16, 1e-15, self.a_vec)
+        self.a_vec = np.where(self.a_vec < 1e-16, 1e-15, self.a_vec)
         #self.a_vec /= np.linalg.norm(self.a_vec)
 
     def growthRate(self):
@@ -101,12 +99,11 @@ class Daisy(object):
         self.beta = 1 - 3.265e-3 * (self.T_vec - self.T)**2.
         return self.beta
 
-
-    def emptySpace(self, a_vec = None):
+    def emptySpace(self, a_vec=None):
         '''
         Determines "x", the remaining area without daisies.
         '''
-        if type(a_vec) == type(None):
+        if a_vec is None:
             self.x = self.P - np.sum(self.a_vec[:-1])
             self.a_vec[-1] = self.x
         else:
@@ -114,25 +111,24 @@ class Daisy(object):
             self.a_vec[-1] - self.x
         return self.x
 
-
-    def albedo(self, a_vec = None):
+    def albedo(self, a_vec=None):
         '''
         Determines the albedo of this patch.
         '''
-        if type(a_vec) == type(None):
+        if a_vec is None:
             self.A = self.a_vec@self.A_vec
-        else: self.A = a_vec@self.A_vec
+        else:
+            self.A = a_vec@self.A_vec
         return self.A
 
     def T_i(self, A=None):
         '''
         Calculates individual daisy temperatures as a function of albedo.
         '''
-        if type(A) == type(None):
+        if A is None:
             return np.power(c.q * (self.A - self.A_vec) + self.Teff**4, 1/4)
         else:
             return np.power(c.q * (self.A - A) + self.Teff**4, 1/4)
-
 
     def temperature(self):
         '''
@@ -140,6 +136,7 @@ class Daisy(object):
         '''
         self.Teff = np.power(self.S * self.L * (1. - self.A) / c.sigma, 1/4)
 
+        # These comments right now are for testing
         #print('\n\n')
         #for key, item in self.__dict__.items():
         #    print(f'{key} = {item}')
@@ -148,13 +145,12 @@ class Daisy(object):
             print('\n\n')
             for key, item in self.__dict__.items():
                 print(f'{key} = {item}')
-            barf
+            pdb.set_trace()
 
         # Temperature array with Teff standing in for the ground question
         self.T[:-1] = self.T_i(self.A_vec[:-1])
         self.T[-1] = self.Teff
         return self.T
-
 
     def dDaisies(self, r, t, x, beta, gamma):
         '''
@@ -209,7 +205,7 @@ class Daisy(object):
         ts = np.linspace(0, 1000., maxsteps)
         r0 = self.a_vec
         rs = np.zeros((len(ts), len(r0)))
-        rs[0,:] = r0
+        rs[0, :] = r0
 
         # Useful output
         areas = self.a_vec * self.P
@@ -220,13 +216,13 @@ class Daisy(object):
             print(f'Tsurf = {self.Teff:.3f}', end='\n')
 
         # use cur_r if autostop is enabled
-        if autostop: cur_r = r0
-
-
+        if autostop:
+            cur_r = r0
 
         # 4th-order Runga Kutta integration
         dr = 1e6
         for i, t in enumerate(ts[:-1]):
+            # 4th order Runga-Kutta integration step
             k1 = h * self.dDaisies(rs[i], t, *args)
             self.update(rs[i] + 0.5 * k1)
             k2 = h * self.dDaisies(rs[i] + 0.5 * k1, t + 0.5*h, *args)
@@ -253,8 +249,12 @@ class Daisy(object):
                 # Check for convergence
                 dr = np.absolute(np.linalg.norm(rs[i+1]-cur_r))
                 if dr < 1e-6:
-                    if self.verbose: print("Converged!")
+                    if self.verbose:
+                        print("Converged!")
+
                     break
+
+                # Update cur_r for next dr comparison
                 cur_r = rs[i+1]
 
             args = [self.x, self.beta, self.gamma]
