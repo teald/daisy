@@ -218,6 +218,7 @@ class Daisy(object):
         # use cur_r if autostop is enabled
         if autostop:
             cur_r = r0
+            prev_Teff = -100000
 
         # 4th-order Runga Kutta integration
         dr = 1e6
@@ -248,7 +249,9 @@ class Daisy(object):
             if autostop:
                 # Check for convergence
                 dr = np.absolute(np.linalg.norm(rs[i+1]-cur_r))
-                if dr < 1e-6:
+                dr = np.amax(np.absolute(rs[i+1] - cur_r))
+                dT = np.absolute(self.Teff - prev_Teff)
+                if np.amax([dr, dT]) < 1e-4:
                     if self.verbose:
                         print("Converged!")
 
@@ -256,6 +259,8 @@ class Daisy(object):
 
                 # Update cur_r for next dr comparison
                 cur_r = rs[i+1]
+                dT = np.absolute(self.Teff - prev_Teff)
+                prev_Teff = self.Teff
 
             args = [self.x, self.beta, self.gamma]
 
