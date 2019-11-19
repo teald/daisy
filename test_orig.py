@@ -23,7 +23,7 @@ for i, L in enumerate(Ls[:-1]):
     d_cur = Daisy(1, 0.3, a_0, A_types, L)
 
     # Solve
-    d_cur.rk4Solve(0., 1000., h)
+    d_cur.rk4Solve(100000, h)
 
     pops[i+1] = d_cur.a_vec[:-1]
     Ts[i+1] = d_cur.Teff
@@ -69,7 +69,7 @@ for i, L in enumerate(Ls[:-1]):
     d_cur = Daisy(1, 0.3, a_0, A_types, L)
 
     # Solve
-    d_cur.rk4Solve(0., 1000., h)
+    d_cur.rk4Solve(100000, h)
 
     pops[i+1] = d_cur.a_vec[:-1]
     Ts[i+1] = d_cur.Teff
@@ -113,7 +113,7 @@ for i, L in enumerate(Ls[:-1]):
     d_cur = Daisy(1, 0.3, a_0, A_types, L)
 
     # Solve
-    d_cur.rk4Solve(0., 1000., h)
+    d_cur.rk4Solve(100000, h)
 
     pops[i+1] = d_cur.a_vec[:-1]
     Ts[i+1] = d_cur.Teff
@@ -157,7 +157,7 @@ for i, L in enumerate(Ls[:-1]):
     d_cur = Daisy(1, 0.3, a_0, A_types, L)
 
     # Solve
-    d_cur.rk4Solve(0., 1000., h)
+    d_cur.rk4Solve(100000, h)
 
     pops[i+1] = d_cur.a_vec[:-1]
     Ts[i+1] = d_cur.Teff
