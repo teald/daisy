@@ -14,7 +14,7 @@ from parcel import Parcel
 
 
 # Tube definition
-class Tube(Daisy, Parcel):
+class Tube(Parcel):
     '''
     This contains the Tube class.
     '''
@@ -32,3 +32,7 @@ class Tube(Daisy, Parcel):
 
 
 # If parcel is on top or bottom then just pass temp from edge as temp in parcel
+
+    def plot(self):
+        #plot the grid
+        pass
