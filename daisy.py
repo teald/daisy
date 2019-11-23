@@ -17,7 +17,7 @@ class Daisy(object):
     '''
 
     def __init__(self, P, gamma, a_vec, A_vec, L=1.0, T_vec=None,
-                 verbose=False, A_g=0.5, S=c.S, q=c.q):
+                 verbose=False, A_g=0.5, S=c.S, q=c.q, effs=None):
         '''
         Initializes the Daisy class. All parameters except gamma (a constant)
         are the initial conditions that will change as the daisies are
@@ -40,10 +40,19 @@ class Daisy(object):
                 will not do that.
             + A_g (float): albedo of the ground for fraction of land not
                 covered by daisies. Default 0.5
-            + S (float): The solar surface flux in erg/cm^2/s (default c.S,
-                from the constants file).
+            + S (float or arr): The solar surface flux in erg/cm^2/s (default
+                c.S, from the constants file). If this is an array, effs must
+                be an array with the efficiency ranges of the daisies or this
+                will be taken as a broad-band flux, and the array should
+                contain corresponding wavelengths in Angstroms.
             + q (float or arr): The absorption efficiency of the daisies and
                 ground (default c.q).
+            + effs (arr or None (Default)): the effs array is used to calculate
+                specific daisy color albedos to determine the absorption and
+                reflectance of specific daisy species. Should be an array of
+                shape (N_daisies, 2) where N_daisies is the number fo daisies
+                and each row contains the reflecting wavelengths of the
+                daisies.
         '''
         # Make all inputs other than self attributes
         self.P = P
@@ -61,6 +70,10 @@ class Daisy(object):
                                              [P-np.sum(a_vec)])])
         self.A_vec = np.array([Ai for Ai in (A_vec.tolist() + [A_g])])
 
+        if not isinstance(self.S, (float, int)):
+            # Then it should be an array, or throw an error
+            self.convert_spectrum()
+
         # Initialize other vectors
         self.T = np.zeros_like(self.a_vec)
 
@@ -73,6 +86,31 @@ class Daisy(object):
 
         # Initialize the other parameters
         self.update()
+
+    def convert_spectrum(self):
+        '''
+        Converts the spectrum to be just the visible spectrum, since that's the
+        only part of the spectrum involved in reflection & absorption by life
+        and the surface of Earth that drive surface heating.
+        '''
+        # Separate the wavelengths and the fluxes
+        wl, flux = self.S[:,0], self.S[:,1]
+
+        # Get the total flux over wavelength and use that as self.S, save the
+        # original as self.S_in
+        self.S_in = np.copy(self.S)
+        self.S = np.trapz(flux, x=wl)
+
+        # If effs is defined, use that to calculate a new array self.S with the
+        # flux absorbed by each species of daisy. If not, the use the fully
+        # integrated spectrum and leave it at that.
+        if 'effs' in self.__dict__:
+            # self.effs exist, use that.
+            pass
+
+        # If this is done, finished (returns nothing since it should only be
+        # called in self.__init__().
+        return
 
     def update(self, a_vec=None):
         '''Updates daisy parameters in the correct order'''
@@ -87,8 +125,9 @@ class Daisy(object):
         Checks to make sure no daisy populations are negative, and that all
         daisy populations are less than 1.
         '''
+        # If any daisy population goes below machine precision, set to 1e-15,
+        # which is sufficient for our purposes.
         self.a_vec = np.where(self.a_vec < 1e-16, 1e-15, self.a_vec)
-        #self.a_vec /= np.linalg.norm(self.a_vec)
 
     def growthRate(self):
         '''
@@ -218,6 +257,7 @@ class Daisy(object):
         # use cur_r if autostop is enabled
         if autostop:
             cur_r = r0
+            prev_Teff = -100000
 
         # 4th-order Runga Kutta integration
         dr = 1e6
@@ -248,7 +288,9 @@ class Daisy(object):
             if autostop:
                 # Check for convergence
                 dr = np.absolute(np.linalg.norm(rs[i+1]-cur_r))
-                if dr < 1e-6:
+                dr = np.amax(np.absolute(rs[i+1] - cur_r))
+                dT = np.absolute(self.Teff - prev_Teff)
+                if np.amax([dr, dT]) < 1e-4:
                     if self.verbose:
                         print("Converged!")
 
@@ -256,6 +298,8 @@ class Daisy(object):
 
                 # Update cur_r for next dr comparison
                 cur_r = rs[i+1]
+                dT = np.absolute(self.Teff - prev_Teff)
+                prev_Teff = self.Teff
 
             args = [self.x, self.beta, self.gamma]
 
