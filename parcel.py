@@ -1,14 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Nov  8 14:43:15 2019
+'''
+This file defines the Parcel object.
 
-@author: ekhammer
-"""
-
+It takes information from the Tube object (theta) and calculates
+the fraction of stellar luminosity hitting the surface. It also
+calculates the temperature change accounting for the surrounding
+daisies in the world.
+'''
 import numpy as np
 from daisy import Daisy
-import matplotlib.pyplot as plt
 
 
 # Parcel definition
@@ -28,28 +27,7 @@ class Parcel(Daisy):
         self.Teff = self.Teff - np.sum(dT*effs)
         return self.Teff
 
-    def Lfrac(self, theta, long):
+    def Lfrac(self, theta):
         '''Calculates luminosity fraction based on theta.'''
         self.theta = theta
-        self.long = long
         return np.cos(90-self.theta)
-
-
-Teff = 300
-temps = np.array([257, 0.0, 328, 291])
-dT = (temps - Teff)
-
-
-def gaussian(x):
-    return np.exp(-np.power(x, 2.) / (2 * np.power(25, 2.)))
-
-
-testDt = np.arange(-100, 100, 1)
-
-plt.plot(testDt, 1-gaussian(testDt))
-plt.show()
-
-
-effs = 1 - gaussian(dT)
-
-Teff = Teff + np.sum(dT*effs)
