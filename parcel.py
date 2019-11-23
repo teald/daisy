@@ -6,6 +6,7 @@ the fraction of stellar luminosity hitting the surface. It also
 calculates the temperature change accounting for the surrounding
 daisies in the world.
 '''
+
 import numpy as np
 from daisy import Daisy
 
