@@ -19,14 +19,25 @@ class Tube(Parcel):
     This contains the Tube class.
     '''
 
-    def setupGrid(self, n):
-        self.n = n
-        self.npix = hp.nside2npix(self.n)
+    def setupGrid(self, n, m, maxtheta):
+        self.n = n #width
+        self.m = m #height
+        self.maxtheta = maxtheta #max latitude to use
+        self.deltheta = self.maxtheta / (0.5 * m) #theta resolution
+        self.npix = n * m
+        gridpos = np.empty([m,n])
+
+        thetas =  #array like gridpos
+##self.gridpos = np.
+        #self.npix = hp.nside2npix(self.n)
+        #self.grid = np.arange(npix)
 
     def __update(self, ):
         '''
         Update Parcel parameters for grid.
         '''
+        for i in self.grid:
+            continue
         # Do Parcel stuff
         pass
 
@@ -35,4 +46,5 @@ class Tube(Parcel):
 
     def plot(self):
         #plot the grid
+        hp.cartview(self.grid)
         pass
