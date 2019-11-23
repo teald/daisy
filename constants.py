@@ -11,6 +11,8 @@ A_b = 0.25
 # Stellar properties assuming some attenuation
 S = 9.17e5  # erg cm^-2 s^-1
 
+# Visible wavelengths + some NUV for realism
+
 # Other constants
 sigma = 5.6704e-5
 
