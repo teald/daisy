@@ -72,7 +72,7 @@ class Tube(Parcel, P, gamma, a_vec, A_vec):
                 Temps[m, n] = self.grid[m,n].Teff
         
         with open("output.txt", "ab") as f:
-            f.write(Temps + '\n')
+            f.write(Temps)
             f.write('\n')
 
     def plot(self):
