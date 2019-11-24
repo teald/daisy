@@ -38,7 +38,7 @@ class Daisy(object):
                 optimal daisy temperature from Watson & Lovelock 1983.
             + verbose (bool): if True, prints out A LOT. If False (default) it
                 will not do that.
-            + A_g (float): albedo of the ground for fraction of land not
+            + A_g (float): albedo of the ground for the fraction of land not
                 covered by daisies. Default 0.5
             + S (float or arr): The solar surface flux in erg/cm^2/s (default
                 c.S, from the constants file). If this is an array, effs must
@@ -94,7 +94,7 @@ class Daisy(object):
         and the surface of Earth that drive surface heating.
         '''
         # Separate the wavelengths and the fluxes
-        wl, flux = self.S[:,0], self.S[:,1]
+        wl, flux = self.S[:, 0], self.S[:, 1]
 
         # Get the total flux over wavelength and use that as self.S, save the
         # original as self.S_in
@@ -176,9 +176,9 @@ class Daisy(object):
         self.Teff = np.power(self.S * self.L * (1. - self.A) / c.sigma, 1/4)
 
         # These comments right now are for testing
-        #print('\n\n')
-        #for key, item in self.__dict__.items():
-        #    print(f'{key} = {item}')
+        # print('\n\n')
+        # for key, item in self.__dict__.items():
+        #     print(f'{key} = {item}')
 
         if np.isnan(self.A):
             print('\n\n')
