@@ -14,10 +14,16 @@ from parcel import Parcel
 
 
 # Tube definition
-class Tube(Parcel):
+class Tube(Parcel, P, gamma, a_vec, A_vec):
     '''
     This contains the Tube class.
     '''
+
+    def __init__(self, P, gamma, a_vec, A_vec):
+        self.P = P
+        self.gamma = gamma
+        self.a_vec = a_vec
+        self.A_vec = A_vec
 
     def setupGrid(self, n, m, maxtheta):
         self.n = n  # width
@@ -27,11 +33,12 @@ class Tube(Parcel):
         self.npix = n * m
         self.thetas = (np.ones([m, n]) * np.linspace(maxtheta, -maxtheta, m)
                        [:, np.newaxis])
-        self.temps = (abs(self.thetas) / maxtheta) * 275 #to be fixed
+        self.Ls = np.cos(90 - self.thetas.reshape(self.npix))
 
         grid = []
         for i in range(m * n):
-            grid.append(Parcel())
+            grid.append(Parcel(self.P, self.gamma, self.a_vec, self.A_vec, 
+                               self.Ls[i]))
         self.grid = np.reshape(grid, (m, n))
 
     def _updategrid(self):
