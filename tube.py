@@ -48,21 +48,21 @@ class Tube(Parcel, P, gamma, a_vec, A_vec):
         for m, n in self.grid:  # go left to right (West to East)
             # change to for loop with arrays
             if m == 0:
-                T_t = self.grid[m, n]
+                T_t = self.grid[m, n].Teff
             else:
-                T_t = self.grid[m-1, n]
+                T_t = self.grid[m-1, n].Teff
             if m == len(self.grid[:, n]) - 1:
-                T_b = self.grid[m, n]
+                T_b = self.grid[m, n].Teff
             else:
-                T_b = self.grid[m+1, n]
+                T_b = self.grid[m+1, n].Teff
             if n == 0:
-                T_l = self.grid[m, -1:]
+                T_l = self.grid[m, -1:].Teff
             else:
-                T_l = self.grid[m, n-1]
+                T_l = self.grid[m, n-1].Teff
             if n == len(self.grid[m, :]) - 1:
-                T_r = self.grid[m, 0]
+                T_r = self.grid[m, 0].Teff
             else:
-                T_r = self.grid[m, n+1]
+                T_r = self.grid[m, n+1].Teff
 
             self.grid[i, j]._updatetemp(T_t, T_b, T_l, T_r)
 
