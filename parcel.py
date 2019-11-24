@@ -21,11 +21,16 @@ class Parcel(Daisy):
 
         def gaussian(x):
             '''Temperature efficiency relation.'''
-            return np.exp(-np.power(x, 2.) / (2 * np.power(25, 2.)))
+            width = np.max(np.abs(x))/2  # Width of Gaussian for each parcel
+            return np.exp(-np.power(x, 2.) / (2 * np.power(width, 2.)))
 
-        effs = 1 - gaussian(dT)
+        effs = 1 - gaussian(dT)  # Calculate efficiencies for each side
 
-        self.Teff = self.Teff - np.sum(dT*effs)
+        self.Teff = self.Teff + np.average(dT*effs)  # Update T_eff
+
+        if self.Teff < 0.0:
+            raise ValueError
+
         return self.Teff
 
     def Lfrac(self, theta):
