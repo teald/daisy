@@ -38,7 +38,7 @@ class Parcel(Daisy):
         self.theta = theta
         return np.cos(90-self.theta)
 
-    def update(self temp1, temp2, temp3, temp4):
+    def update(self, temp1, temp2, temp3, temp4):
         '''Integrates teh parcel one step'''
         h = 0.001
 
