@@ -25,43 +25,41 @@ class Tube(Parcel):
         self.maxtheta = maxtheta  # max latitude to use
         self.deltheta = self.maxtheta / (0.5 * m)  # theta resolution
         self.npix = n * m
-        self.gridpos = np.empty([m, n])  # starting temperatures (to be fixed)
-        self.thetas = np.ones([m, n]) * np.linspace(maxtheta, -maxtheta, m)
-        # array like gridpos (to be fixed)
-##self.gridpos = np.
-        #self.npix = hp.nside2npix(self.n)
-        #self.grid = np.arange(npix)
+        self.thetas = (np.ones([m, n]) * np.linspace(maxtheta, -maxtheta, m)
+                       [:, np.newaxis])
+        self.temps = (abs(self.thetas) / maxtheta) * 275 #to be fixed
 
-    def __update(self, grid):
+        grid = []
+        for i in range(m * n):
+            grid.append(Parcel())
+        self.grid = np.reshape(grid, (m, n))
+
+    def _updategrid(self):
         '''
         Update Parcel parameters for grid.
         '''
         for m, n in self.grid:  # go left to right (West to East)
             # change to for loop with arrays
             if m == 0:
-                T_t = grid[m, n]
+                T_t = self.grid[m, n]
             else:
-                T_t = grid[m-1, n]
-            if m == len(grid[:, n]) - 1:
-                T_b = grid[m, n]
+                T_t = self.grid[m-1, n]
+            if m == len(self.grid[:, n]) - 1:
+                T_b = self.grid[m, n]
             else:
-                T_b = grid[m+1, n]
+                T_b = self.grid[m+1, n]
             if n == 0:
-                T_l = grid[m, -1:]
+                T_l = self.grid[m, -1:]
             else:
-                T_l = grid[m, n-1]
-            if n == len(grid[m, :]) - 1:
-                T_r = grid[m, 0]
+                T_l = self.grid[m, n-1]
+            if n == len(self.grid[m, :]) - 1:
+                T_r = self.grid[m, 0]
             else:
-                T_r = grid[m, n+1]
+                T_r = self.grid[m, n+1]
 
-            grid[i, j] = Parcel(args)
-        # Do Parcel stuff
-
-# If parcel is on top or bottom then just pass temp from edge as temp in parcel
+            self.grid[i, j]._updatetemp(T_t, T_b, T_l, T_r)
 
     def plot(self):
         #plot the grid
-        #hp.cartview(self.grid)
         plt.imshow(self.grid)
         plt.grid()
