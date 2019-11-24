@@ -34,11 +34,11 @@ some of those here.
 
 ### Initializing a `Daisy` object
 To initialize a `Daisy` object, one much be sure to pass in the correct arguments. `Daisy` requires at minimum _4 arguments_ when an object is created:
-+ P (float): the fertile area the daisies have to grow.
-+ gamma (float): the death rate of the daisies in daisies/day.
-+ a_vec (array): the numpy 1D array containing the fractional area
++ `P` (`float`): the fertile area the daisies have to grow.
++ `gamma` (`float`): the death rate of the daisies in daisies/day.
++ `a_vec` (`array`): the numpy 1D array containing the fractional area
     covered by each desired species of daisy
-+ A_vec (array): the numpy 1D array containing the albedos of each
++ `A_vec` (`array`): the numpy 1D array containing the albedos of each
     daisy species in a_vec
 
 Furthermore, there are `kwargs` with default values typically corresponding to the Watson & Lovelock 1983 values.
@@ -77,7 +77,7 @@ requires 2 arguments:
 
 This will integrate until either `maxsteps` iterations have happened _or_ the temperature and population differences between the previous and current step are less than `1e-4`. After one of those conditions is met, the method returns.
 
-FOr the purposes of adding additional conditions or, with our `Parcel` and
+For the purposes of adding additional conditions or, with our `Parcel` and
 `Tube` classes, mapping individual `Daisy` objects to a surface, one can use
 the `onestep` kwarg. Using `Daisy().rk4Solve(maxstep, h, onestep=True)` will
 run only one step of the rk4 integration before returning. This allows for
