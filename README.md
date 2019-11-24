@@ -88,6 +88,7 @@ considitons to be added in between steps of the rk4 solver.
 + Make `test_orig.py` overplot the Watson & Lovelock 1983 results per Derek's request.
 + Write a solid README
 + Make sure to include a dashed line in a Figure 3 sampling plot to show that these randomly sampled runs all surround the normal no-daisy limit.
++ Make plots look nice
 
 ## Done
 + Fix really low temperature issue
