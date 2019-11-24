@@ -1,5 +1,9 @@
+'''
+Tests the time dependence of the daisies, integrating over some range to convergence in time rather than as a funciton of some other physical variable.
+'''
+# Imports
 import pdb
-from daisy import *
+from parcel import Parcel as Daisy
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -13,23 +17,22 @@ T_types = np.random.normal(295., 10., size=a_types.shape)
 T_types = None
 
 # Step forward in time and plot that toward convergence
-h = 0.1
-dL = 0.01
-ts = np.arange(0., 10000.+h, h)
-Ls = .6 + np.power(np.sin(ts/(ts[-1] / 4)), 2)
+h = 0.001
+ts = np.arange(0., 100.+h, h)
 
 pops = np.zeros((len(ts), len(a_types)))
 
 pops[0] = np.zeros_like(a_types) + 0.01
 
 # daisy object initialization
-daisy = Daisy(1, 0.3, a_types, A_types, Ls[0], T_types)
+daisy = Daisy(1, 0.3, a_types, A_types, 1, T_types)
 
 for i, t in enumerate(ts[:-1]):
     # go one step forward
-    daisy.L = np.copy(Ls[i])
     pops[i+1] = daisy.rk4Solve(0, h, onestep=True)[:-1]
-    print(f'Iteration {i} of {len(ts)} done. {daisy.L}.')
+    daisy.
+    print(f'Iteration {i} of {len(ts)} done. {daisy.L}.', end='\r')
+print(end='\n')
 
 # Plot the values as a function of time
 figure, ax = plt.subplots()
