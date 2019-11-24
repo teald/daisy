@@ -87,14 +87,14 @@ considitons to be added in between steps of the rk4 solver.
 This object is meant to be a mediator between a Daisy object and all the surrounding Daisy objects. There are two functions
 in the Parcel objects.
 
-## _updatetemp
+### _updatetemp
 This function takes in the temperatures of the surrounding parcels and calculates the new effective temperature of the
 parcel. It calculates the efficiency of temperature transport based on the difference between a surrounding parcel and the
 current parcel in question. The efficiencies are drawn from a Gaussian distribution with a width based on the maximum
 temperature difference between the parcel in question and the surrounding parcels. It will then update the effective
 temperature based on the average of the temperatures of the surrounding parcels attentuated by their efficiency.
 
-## Lfrac
+### Lfrac
 This function calculates the fraction of the stellar luminosity that is hitting the current parcel in question. It takes in
 the angle at which the radiation is hitting the surface and returns the fraction of the stellar luminosity.
 
