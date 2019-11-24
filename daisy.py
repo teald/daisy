@@ -85,7 +85,7 @@ class Daisy(object):
             self.T_vec = np.asarray(self.T_vec.tolist() + [295.65])
 
         # Initialize the other parameters
-        self.update()
+        self._update()
 
     def convert_spectrum(self):
         '''
@@ -112,7 +112,7 @@ class Daisy(object):
         # called in self.__init__().
         return
 
-    def update(self, a_vec=None):
+    def _update(self, a_vec=None):
         '''Updates daisy parameters in the correct order'''
         self.daisy_check()
         self.emptySpace(a_vec)
@@ -229,15 +229,15 @@ class Daisy(object):
             t = 0
             r = self.a_vec
             k1 = h * self.dDaisies(r, t, *args)
-            self.update(r + 0.5 * k1)
+            self._update(r + 0.5 * k1)
             k2 = h * self.dDaisies(r + 0.5 * k1, t + 0.5*h, *args)
-            self.update(r + 0.5 * k2)
+            self._update(r + 0.5 * k2)
             k3 = h * self.dDaisies(r + 0.5 * k2, t + 0.5*h, *args)
-            self.update(r + k3)
+            self._update(r + k3)
             k4 = h * self.dDaisies(r + k3, t + h, *args)
             r = r + (1/6) * (k1 + 2*k2 + 2*k3 + k4)
             self.a_vec = r
-            self.update()
+            self._update()
             return r
 
         # Create the ts and rs
@@ -264,11 +264,11 @@ class Daisy(object):
         for i, t in enumerate(ts[:-1]):
             # 4th order Runga-Kutta integration step
             k1 = h * self.dDaisies(rs[i], t, *args)
-            self.update(rs[i] + 0.5 * k1)
+            self._update(rs[i] + 0.5 * k1)
             k2 = h * self.dDaisies(rs[i] + 0.5 * k1, t + 0.5*h, *args)
-            self.update(rs[i] + 0.5 * k2)
+            self._update(rs[i] + 0.5 * k2)
             k3 = h * self.dDaisies(rs[i] + 0.5 * k2, t + 0.5*h, *args)
-            self.update(rs[i] + k3)
+            self._update(rs[i] + k3)
             k4 = h * self.dDaisies(rs[i] + k3, t + h, *args)
             rs[i+1] = rs[i] + (1/6) * (k1 + 2*k2 + 2*k3 + k4)
 
@@ -276,7 +276,7 @@ class Daisy(object):
             self.a_vec = rs[i+1]
 
             # Recalculate the new physical parameters for the daisies.
-            self.update()
+            self._update()
 
             # Print out the current step
             areas = self.a_vec * self.P
