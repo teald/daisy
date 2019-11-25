@@ -72,12 +72,12 @@ class Tube(object):
         
         f = open("output.txt", "a")
         np.savetxt(f, Temps)
-        f.write('\n')
-        f.write('#DAISIES \n')
+        #f.write('\n')
+        #f.write('#DAISIES \n')
         f.close()
 
     def plot(self):
         # Plot the grid
-        temps = np.genfromtxt("output.txt")
+        temps = np.genfromtxt("output.txt")[-self.m:]
         plt.imshow(temps)
-        plt.grid()
+        plt.grid(b=False)
