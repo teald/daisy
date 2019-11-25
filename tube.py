@@ -78,6 +78,6 @@ class Tube(object):
 
     def plot(self):
         # Plot the grid
-        temps = np.loadtxt("output.txt", delimiter="DAISIES")
-        plt.imshow(temps[0])
+        temps = np.genfromtxt("output.txt")
+        plt.imshow(temps)
         plt.grid()
