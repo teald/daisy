@@ -32,7 +32,7 @@ class Tube(object):
         self.npix = n * m
         self.thetas = (np.ones([m, n]) * np.linspace(maxtheta, -maxtheta, m)
                        [:, np.newaxis])
-        self.Ls = np.cos(90 - self.thetas.reshape(self.npix))
+        self.Ls = abs(np.cos(90 - self.thetas.reshape(self.npix)))
 
         grid = []
         for i in range(m * n):
@@ -58,7 +58,7 @@ class Tube(object):
                 else:
                     T_b = self.grid[m+1, n].Teff
                 if n == 0:
-                    T_l = self.grid[m, -1:].Teff
+                    T_l = self.grid[m, -1].Teff
                 else:
                     T_l = self.grid[m, n-1].Teff
                 if n == len(self.grid[m, :]) - 1:
@@ -78,6 +78,6 @@ class Tube(object):
 
     def plot(self):
         # Plot the grid
-        temps = np.loadtxt("outputs.txt")
+        temps = np.loadtxt("output.txt")
         plt.imshow(temps[0])
         plt.grid()
