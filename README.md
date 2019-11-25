@@ -92,11 +92,10 @@ This function takes in the temperatures of the surrounding parcels and calculate
 parcel. It calculates the efficiency of temperature transport based on the difference between a surrounding parcel and the
 current parcel in question. The efficiencies are drawn from a Gaussian distribution with a width based on the maximum
 temperature difference between the parcel in question and the surrounding parcels. It will then update the effective
-temperature based on the average of the temperatures of the surrounding parcels attentuated by their efficiency.
+temperature based on the average of the temperatures of the surrounding parcels attentuated by their efficiency. It takes in the four temperatures from the four surrounding parcels as arguments.
 
-### Lfrac
-This function calculates the fraction of the stellar luminosity that is hitting the current parcel in question. It takes in
-the angle at which the radiation is hitting the surface and returns the fraction of the stellar luminosity.
+### update
+This function simply updates the parameters for the Daisy object within the Parcel object and initializes the next step of the RK4 solver.
 
 ## To-do
 + Make `test_orig.py` overplot the Watson & Lovelock 1983 results per Derek's request.
