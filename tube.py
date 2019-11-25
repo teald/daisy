@@ -37,7 +37,7 @@ class Tube(object):
 
         grid = []
         for i in range(m * n):
-            grid.append(Parcel(self.P, self.gamma, self.a_vec, self.A_vec, 
+            grid.append(Parcel(self.P, self.gamma, self.a_vec, self.A_vec,
                                self.Ls[i]))
         self.grid = np.reshape(grid, (m, n))
 
@@ -47,9 +47,9 @@ class Tube(object):
         '''
         Temps = np.empty([self.m, self.n])
 
-        for m in range(len(self.grid[:,0])):
-            for n in range(len(self.grid[0,:])):# go left to right (West to East)
-            # change to for loop with arrays
+        for m in range(len(self.grid[:, 0])):
+            for n in range(len(self.grid[0, :])):  # Go left to right (West to East)
+                # Change to for loop with arrays
                 if m == 0:
                     T_t = self.grid[m, n].Teff
                 else:
@@ -78,7 +78,7 @@ class Tube(object):
         f.close()
 
     def plot(self):
-        #plot the grid
+        # Plot the grid
         temps = np.loadtxt("outputs.txt")
         plt.imshow(temps[0])
         plt.grid()
