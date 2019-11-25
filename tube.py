@@ -14,7 +14,7 @@ from parcel import Parcel
 
 
 # Tube definition
-class Tube(Parcel, P, gamma, a_vec, A_vec):
+class Tube(object):
     '''
     This contains the Tube class.
     '''
@@ -45,7 +45,7 @@ class Tube(Parcel, P, gamma, a_vec, A_vec):
         '''
         Update Parcel parameters for grid.
         '''
-        Temps = np.empty([m,n])
+        Temps = np.empty([self.m, self.n])
 
         for m in range(len(self.grid[:,0])):
             for n in range(len(self.grid[0,:])):# go left to right (West to East)
@@ -71,9 +71,11 @@ class Tube(Parcel, P, gamma, a_vec, A_vec):
 
                 Temps[m, n] = self.grid[m,n].Teff
         
-        with open("output.txt", "ab") as f:
-            f.write(Temps)
-            f.write('\n')
+        f = open("output.txt", "a")
+        np.savetxt(f, Temps)
+        f.write('\n'))
+        f.write('DAISIES \n')
+        f.close()
 
     def plot(self):
         #plot the grid
