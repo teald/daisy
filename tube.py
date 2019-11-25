@@ -5,7 +5,6 @@ Bow down to the TUBE and it may show mercy upon your soul.
 '''
 # Imports
 import numpy as np
-import healpy as hp
 import matplotlib.pyplot as plt
 
 import constants as c
