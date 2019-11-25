@@ -73,7 +73,7 @@ class Tube(object):
         
         f = open("output.txt", "a")
         np.savetxt(f, Temps)
-        f.write('\n'))
+        f.write('\n')
         f.write('DAISIES \n')
         f.close()
 
