@@ -19,12 +19,13 @@ class Tube(object):
     This contains the Tube class.
     '''
 
-    def __init__(self, P, gamma, a_vec, A_vec, T_vec=None):
+    def __init__(self, P, gamma, a_vec, A_vec, T_vec=None, phistep=(np.pi/2)):
         self.P = P
         self.gamma = gamma
         self.a_vec = a_vec
         self.A_vec = A_vec
         self.T_vec = T_vec
+        self.phistep = phistep
 
     def setupGrid(self, n, m, maxtheta):
         self.n = n  # width
@@ -69,6 +70,8 @@ class Tube(object):
                     T_r = self.grid[m, n+1].Teff
 
                 self.grid[m, n].update(T_t, T_b, T_l, T_r)
+                #self.grid[m, n].L += self.grid[m, n].L * np.cos(self.phistep)
+                self.grid[m, n].L = 
 
                 Temps[m, n] = self.grid[m,n].Teff
         
