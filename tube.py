@@ -6,6 +6,7 @@ Bow down to the TUBE and it may show mercy upon your soul.
 # Imports
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 import constants as c
 from daisy import Daisy
@@ -18,11 +19,12 @@ class Tube(object):
     This contains the Tube class.
     '''
 
-    def __init__(self, P, gamma, a_vec, A_vec):
+    def __init__(self, P, gamma, a_vec, A_vec, T_vec=None):
         self.P = P
         self.gamma = gamma
         self.a_vec = a_vec
         self.A_vec = A_vec
+        self.T_vec = T_vec
 
     def setupGrid(self, n, m, maxtheta):
         self.n = n  # width
@@ -37,7 +39,7 @@ class Tube(object):
         grid = []
         for i in range(m * n):
             grid.append(Parcel(self.P, self.gamma, self.a_vec, self.A_vec,
-                               self.Ls[i]))
+                               self.Ls[i], T_vec=self.T_vec))
         self.grid = np.reshape(grid, (m, n))
 
     def _updategrid(self):
@@ -70,14 +72,20 @@ class Tube(object):
 
                 Temps[m, n] = self.grid[m,n].Teff
         
+        if os.path.exists("./output.txt") == True:
+            os.remove("./output.txt")
+
         f = open("output.txt", "a")
         np.savetxt(f, Temps)
-        #f.write('\n')
-        #f.write('#DAISIES \n')
         f.close()
 
-    def plot(self):
+    def plot(self, title=""):
         # Plot the grid
         temps = np.genfromtxt("output.txt")[-self.m:]
-        plt.imshow(temps)
+        plt.imshow(temps, extent=[0, 360, -self.maxtheta, self.maxtheta])
+        plt.colorbar()
+        plt.clim(240, 320)
+        plt.title(title)
+        plt.xlabel("Longitude [deg]")
+        plt.ylabel("Latitude [deg]")
         plt.grid(b=False)
