@@ -72,7 +72,7 @@ class Tube(object):
                 self.grid[m, n].update(T_t, T_b, T_l, T_r)
 
                 Temps[m, n] = self.grid[m,n].Teff
-        
+
         if os.path.exists("./output.txt") == True:
             os.remove("./output.txt")
 
