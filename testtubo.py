@@ -20,19 +20,23 @@ T_vec = np.random.normal(295., 10., size=n_daisies)
 
 #phis = [0, 1.57, 3.14, 4.71]
 phis = np.linspace(-0.39, 0.39, 9)
-#phis = [1.]
+phis = [0.]
 
 for phi in phis:
     tube = Tube(P=P, gamma=gamma, a_vec=a_vec, A_vec=A_vec, phi=phi, T_vec=T_vec)
-    tube.setupGrid(50, 50, 80)
+    tube.setupGrid(50, 50, 80, oceans=True, inputfile='gauss.world')
 
-    for i in range(10):
+    tube.plot(r'Daisyworld init')
+    #tube.plot(r'Daisyworld init', ptype='albedo')
+
+    for i in range(100):
         print(f"{i}", end="\r")
         tube._updategrid()
 
-    plt.figure()
-    tube.plot(r"Daisyworld Temps with a %.2f $\pi$ Seasonal Phase" % (phi/np.pi))
-    
+tube.plot(r"Daisyworld Temps with a %.2f $\pi$ Seasonal Phase" % (phi/np.pi))
+#tube.plot(r"Daisyworld Temps with a %.2f $\pi$ Seasonal Phase" % (phi/np.pi),
+#          ptype='albedo')
+
 plt.show()
 '''
 plt.figure()
