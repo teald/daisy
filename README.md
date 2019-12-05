@@ -96,20 +96,3 @@ temperature based on the average of the temperatures of the surrounding parcels 
 
 ### update
 This function simply updates the parameters for the Daisy object within the Parcel object and initializes the next step of the RK4 solver.
-
-## To-do
-+ Make `test_orig.py` overplot the Watson & Lovelock 1983 results per Derek's request.
-+ Write a solid README
-+ Make sure to include a dashed line in a Figure 3 sampling plot to show that these randomly sampled runs all surround the normal no-daisy limit.
-+ Make plots look nice
-
-## Done
-+ Fix really low temperature issue
-+ Make sure `a_w` and `a_b` never go above one or below zero for stupid
-  reasons.
-+ Find best value for `q`.
-+ Vectorize daisies and their intrinsic albedos in `Daisy().__init__()`
-+ Generalize `Daisy` to take N types of daisies.
-+ Make the autostop stopping mechanism stop based on temperature differences
-  *or* daisy differences, whichever is greater. Does that make sense? Should it
-  just be one?
