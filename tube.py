@@ -91,24 +91,21 @@ class Tube(object):
 
             # Read in the file
             with open(inputfile, 'r') as infile:
-                n = 1
                 m = 0
                 lines = []
 
                 # Doing it this way for ease of coding, not expensive anyways
                 for line in infile.readlines():
-                    n += 1
+                    m += 1
+                    n = 0
                     for char in line.strip().split():
-                        if char.lower() == 'x':
+                        if char.lower().strip() == 'x':
                             val = 1
                         else:
                             val = 0
 
                         lines.append(val)
-                        m += 1
-
-                m = m//n
-                pdb.set_trace()
+                        n += 1
 
             landgrid = np.array(lines)
 
@@ -133,13 +130,11 @@ class Tube(object):
         grid = []
         for i, val in enumerate(landgrid):
             if landgrid[i] == 1:
-                print(f"Parcel generated at {i}")
                 grid.append(Parcel(self.P, self.gamma, self.a_vec, self.A_vec,
                                self.Ls[i], T_vec=self.T_vec))
 
             else:
-                print(f"Ocean generated at {i}")
-                grid.append(Ocean(295))
+                grid.append(Ocean(290))
 
         self.grid = np.reshape(grid, (m, n))
 
@@ -197,6 +192,7 @@ class Tube(object):
             + ptype (str): The type of plot to make, default "Temperature".
                 Options:
                     - "Temperature"
+                    - "Albedo"
         '''
         plt.figure()
         ptype = ptype.lower()

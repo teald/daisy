@@ -5,7 +5,7 @@ import constants as c
 import matplotlib.pyplot as plt
 
 # Initialize a tube
-n_daisies = 2
+n_daisies = 10
 P = 1
 gamma = 0.3
 a_vec = np.array([1/(n_daisies + 1) for i in range(n_daisies)])
@@ -24,14 +24,17 @@ phis = [0.]
 
 for phi in phis:
     tube = Tube(P=P, gamma=gamma, a_vec=a_vec, A_vec=A_vec, phi=phi, T_vec=T_vec)
-    tube.setupGrid(50, 50, 80, oceans=True, inputfile='gauss.world')
+    tube.setupGrid(0, 0, 80, oceans=True, inputfile='harrison.world')
 
     tube.plot(r'Daisyworld init')
     #tube.plot(r'Daisyworld init', ptype='albedo')
 
-    for i in range(100):
+    for i in range(10):
         print(f"{i}", end="\r")
         tube._updategrid()
+
+        if i % 10 == 0 and i > 1:
+            tube.plot(r'Daisyworld at {i} iterations')
 
 tube.plot(r"Daisyworld Temps with a %.2f $\pi$ Seasonal Phase" % (phi/np.pi))
 #tube.plot(r"Daisyworld Temps with a %.2f $\pi$ Seasonal Phase" % (phi/np.pi),
