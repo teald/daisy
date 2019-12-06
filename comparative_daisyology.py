@@ -6,7 +6,7 @@ from tube import Tube
 
 # Make the file on the fly
 m = 40
-n = 30
+n = 1
 water = 5
 
 grid = []

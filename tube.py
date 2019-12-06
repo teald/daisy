@@ -183,34 +183,47 @@ class Tube(object):
         np.savetxt(f, Temps)
         f.close()
 
-    def plot(self, title="", ptype="Temperature"):
+
+    def plot(self, title="", ptype="Temperature", savefig=None):
         '''
         Plots the grid.
 
         Args:
             + title (str): Title fo the plot. Default ''.
-            + ptype (str): The type of plot to make, default "Temperature".
+            + ptype (str): The type of plot to make, default "Temperature". The
+                input string is *not* case sensitive!
+
                 Options:
                     - "Temperature"
                     - "Albedo"
+                    - "Pops" or "Populations"
+
+            + savefig (string or None): if a string, saves the figure to that
+                location. If None, does nothing (should display if the user
+                calls plt.show() after this method.
         '''
         plt.figure()
         ptype = ptype.lower()
 
         if ptype == "temperature":
             # Plot the grid
-            #temps = np.genfromtxt("output.txt")[-self.m:]
             temps = []
+            only_parcels = []
             for row in self.grid:
                 temprow = []
                 for area in row:
                     temprow.append(area.Teff)
+
+                    if isinstance(area, Parcel):
+                        only_parcels.append(area.Teff)
+
                 temps.append(temprow)
 
             plt.imshow(temps, extent=[0, 360, -self.maxtheta, self.maxtheta],
                        aspect='equal')
             plt.colorbar()
             plt.clim(240, 320)
+            plt.clim(np.amin(only_parcels), np.amax(only_parcels))
             plt.title(title)
             plt.xlabel("Longitude [deg]")
             plt.ylabel("Latitude [deg]")
@@ -218,24 +231,92 @@ class Tube(object):
 
         elif ptype == "albedo":
             # Plot the grid
-            #temps = np.genfromtxt("output.txt")[-self.m:]
-            temps = []
+            albedos = []
+            only_parcels = []
+
             for row in self.grid:
                 temprow = []
+
                 for area in row:
                     temprow.append(area.A)
-                temps.append(temprow)
 
-            plt.imshow(temps, extent=[0, 360, -self.maxtheta, self.maxtheta],
-                       aspect='equal')
+                    # Get parcels only for the colorbar
+                    if isinstance(area, Parcel):
+                        only_parcels.append(area.A)
+                albedos.append(temprow)
+
+            plt.imshow(albedos, extent=[0, 360, -self.maxtheta, self.maxtheta],
+                       aspect='equal', cmap='gray')
             plt.colorbar()
-            plt.clim(0, 1)
+            plt.clim(np.amin(only_parcels), np.amax(only_parcels))
             plt.title(title)
             plt.xlabel("Longitude [deg]")
             plt.ylabel("Latitude [deg]")
             plt.grid(b=False)
 
-        else:
-            raise ValueError("Unrecognized ptype passed. Please select from"
-                             "the options listed in the documentation.")
+        elif ptype in ['pops', 'population']:
+            # Plot the grid
+            pops = []
+            only_parcels = []
 
+            for row in self.grid:
+                temprow = []
+
+                for area in row:
+                    # Get parcels to get pops and for colorbar not including
+                    # the ground.
+                    if isinstance(area, Parcel):
+                        only_parcels.append(np.sum(area.a_vec[:-1]))
+                        temprow.append(np.sum(area.a_vec[:-1]))
+
+                    else:
+                        temprow.append(0.)
+                pops.append(temprow)
+
+            plt.imshow(pops, extent=[0, 360, -self.maxtheta, self.maxtheta],
+                       aspect='equal', cmap='gray')
+            plt.colorbar()
+            plt.clim(np.amin(only_parcels), np.amax(only_parcels))
+            plt.title(title)
+            plt.xlabel("Longitude [deg]")
+            plt.ylabel("Latitude [deg]")
+            plt.grid(b=False)
+
+        elif ptype in [str(_d) for _d in range(len(self.a_vec))]:
+            # Plot the grid
+            pops = []
+            only_parcels = []
+
+            for row in self.grid:
+                temprow = []
+
+                for area in row:
+                    # Get parcels to get pops and for colorbar not including
+                    # the ground.
+                    if isinstance(area, Parcel):
+                        only_parcels.append(np.sum(area.a_vec[int(ptype)]))
+                        temprow.append(np.sum(area.a_vec[int(ptype)]))
+
+                    else:
+                        temprow.append(0.)
+                pops.append(temprow)
+
+            plt.imshow(pops, extent=[0, 360, -self.maxtheta, self.maxtheta],
+                       aspect='equal', cmap='gray')
+            plt.colorbar()
+            plt.clim(np.amin(only_parcels), np.amax(only_parcels))
+            plt.title(title)
+            plt.xlabel("Longitude [deg]")
+            plt.ylabel("Latitude [deg]")
+            plt.grid(b=False)
+
+
+        else:
+            # Incorrect plot type passed
+            raise ValueError("Unrecognized ptype passed. Please select from"
+                             " the options listed in the documentation.")
+
+        if savefig is not None:
+            # Save the figure
+            plt.gcf().savefig(savefig)
+            plt.close(plt.gcf())
